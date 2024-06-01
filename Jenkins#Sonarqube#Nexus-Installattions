@@ -3,7 +3,7 @@
     2. Jenkins
     3. Docker
     4. Trivy
-	
+    5. EKS Cluster
 		1a. Prerequisites -> Java
 			java
 			sudo apt install openjdk-17-jre-headless
