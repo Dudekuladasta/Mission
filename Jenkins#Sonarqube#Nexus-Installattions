@@ -1,0 +1,373 @@
+1. Jenkins Server:
+    1. Java
+    2. Jenkins
+    3. Docker
+    4. Trivy
+	
+		1a. Prerequisites -> Java
+			java
+			sudo apt install openjdk-17-jre-headless
+
+		1b. Install Jenkins : https://www.jenkins.io/doc/book/installing/linux/#debianubuntu
+
+			vi jenkins.sh 
+
+				sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+				  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+				echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+				  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+				  /etc/apt/sources.list.d/jenkins.list > /dev/null
+				sudo apt-get update
+				sudo apt-get install jenkins -y
+        
+			chmod +x jenkins.sh
+			./jenkins.sh
+		1c. Install docker: https://docs.docker.com/engine/install/ubuntu/
+
+			vi docker.sh
+      
+				# Add Docker's official GPG key:
+				sudo apt-get update
+				sudo apt-get install ca-certificates curl
+				sudo install -m 0755 -d /etc/apt/keyrings
+				sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+				sudo chmod a+r /etc/apt/keyrings/docker.asc
+				
+				# Add the repository to Apt sources:
+				echo \
+				  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+				  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+				  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+				sudo apt-get update -y
+				
+				sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+
+			chmod +x docker.sh
+			./docker.sh
+			docker --version
+			docker ps
+			    permission denied
+			sudo chmod 666 /var/run/docker.sock 
+						(or)
+			sudo usermod -aG docker ubuntu
+			docker ps
+
+		1d. install trivy in jenkins
+			vi trivy.sh   
+				sudo apt-get install wget apt-transport-https gnupg lsb-release
+				wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+				echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+				sudo apt-get update
+				sudo apt-get install trivy -y
+			
+			chmod +x trivy.sh
+			./trivy.sh
+			
+			trivy --version
+************************************************************************SONARQUBE INSTALLATIONS*****************************************************************************************************************
+2. Sonarqube Installation:
+		sudo apt-get update
+	1. Docker
+	2. Sonarqube
+	
+		2a. Install docker: https://docs.docker.com/engine/install/ubuntu/
+    
+			vi docker.sh
+        
+				# Add Docker's official GPG key:
+				sudo apt-get update
+				sudo apt-get install ca-certificates curl
+				sudo install -m 0755 -d /etc/apt/keyrings
+				sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+				sudo chmod a+r /etc/apt/keyrings/docker.asc
+				  
+				# Add the repository to Apt sources:
+				echo \
+				"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+				$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+				sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+				sudo apt-get update -y
+				  
+				sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+			
+			chmod +x docker.sh
+			./docker.sh
+			docker --version
+			docker ps
+			permission denied
+			sudo chmod 666 /var/run/docker.sock 
+			(or)
+			sudo usermod -aG docker ubuntu
+			docker ps
+      
+		2b. Install sonarqube:
+			docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
+			   (or) from official website
+			docker pull sonar
+			Publicip:9000
+************************************************************************NEXUS INSTALLATIONS*****************************************************************************************************************
+3. Nexus Installations:
+		sudo apt-get update
+    1. Docker
+	2. Nexus
+	
+		3a. Install docker
+          https://docs.docker.com/engine/install/ubuntu/
+          
+			vi docker.sh
+				# Add Docker's official GPG key:
+				sudo apt-get update
+				sudo apt-get install ca-certificates curl
+				sudo install -m 0755 -d /etc/apt/keyrings
+				sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+				sudo chmod a+r /etc/apt/keyrings/docker.asc
+				 
+				# Add the repository to Apt sources:
+				echo \
+				"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+				$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+				sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+				sudo apt-get update -y
+				 
+				sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+          
+			chmod +x docker.sh
+			./docker.sh
+			docker --version
+			docker ps
+			permission denied
+			sudo chmod 666 /var/run/docker.sock 
+			 (or)
+			sudo usermod -aG docker ubuntu
+			docker ps
+          
+        3b. Install nexus:
+			docker run -d --name nexus3 -p 8081:8081 sonatype/nexus3
+				  (or)
+			docker pull sonatype/nexus3
+			Publicip:8081
+			for password
+			docker ps
+			docker exec -it <containerd> /bin/bash
+			ls
+			cd sonatype work
+			cd nexus3
+			cat admin.password
+			Nexus Singin
+*********************************************************************************INSTALL PLUGINS IN JENKINS************************************************************************************************
+Setup GitHub and push code to GitHub :
+
+    https://github.com/Dudekuladasta/Mission.git
+    Create token Steps :  Setting->Developer settings-->personal access tokens-->
+                          select all checkboxs(what ever its required)
+                          Copy and paste the token in somewhere
+Install plugins :
+
+      1.jdk (Eclipse Temurin installer) ->Incase if you are using diff versions of jdk then u install plugin in jenkins
+      2.sonarqube scanner
+      3.docker, docker pipeline
+      4.kubernets,kubernets client api, kubernets credentials, kubernets cli
+      5.config file provider
+      6.maven integration, maven pipeline integration
+
+configure plugins:
+
+      1. jdk
+          Name : jdk17
+          install automatically
+          add installer->adoptium.net->jdk-17 latest
+      
+      2. Sonarqube Scanner
+          Name: sonar-scanner
+          install automatically-> sonarqube scanner 5.0.1.3006
+      
+      3. Maven
+          Name : maven3
+          install automatically
+          version: 3.6.3 it should be compatable
+      
+      4. Docker
+          name: docker
+          install automatically
+          add installer-> download from docker.com -> docker version :latest
+      
+Pipleine Creation--> New item--> Pipeline Name:
+      stages:
+          1. Git Checkout
+          2. Compile
+          3. Test
+          4. Trivy Scan File System
+          5. SonarQube Analysis
+          6. Build
+          7. Deploy Artifacts To Nexus
+          8. Build & Tag Docker Image
+          9. Trivy Scan Image
+          10. Publish Docker Image
+          11. Deploy To Kubernetes (K8s)
+          12. Verify Deployment
+
+			1. Add git credentials using token
+				username : github username ->Dudekuladasta
+				token 
+
+			2. configure
+				sonarqube scanner
+				sonarqube server
+				
+				Manage jenkins->system->sonarqube servers->add sonarqube installations
+				Name,Server URL & server authentication token
+				
+				In sonar qube server:
+					Administration->Security->Users->Tokens->any name->Generate->Copy and paste in 
+					server authentication token section
+					
+					also add credentials in jenkins->manage jenkins
+						New credentials-> secret text-> paste token -> id (sonar-token)
+
+
+			3. Nexus :
+				maven-releases
+				maven-snapshots
+				
+				In pom.xml change the maven-releases and maven urls 
+				 <distribution manager></distribution manager>
+	
+			4. Authentication of nexus:
+	
+				Manage jenkins->managed files-> Add a new config->
+				Select Global Maven settings.xml ->
+				ID: maven-setting
+				click on next-> 
+				uncomment servers
+				 and paste <id>maven-releases</id>
+						   <username>admin</username>
+						   <password>admin</password>
+					lly for maven-snapshots
+					
+				click on submit
+	
+					Pipeline syntax : withmaven
+					stage('Deploy Artifacts To Nexus') {
+					  steps {
+						withMaven(globalMavenSettingsConfig: 'maven-setting', jdk: 'jdk17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+						  sh "mvn deploy -DskipTests=true"
+						}
+					  }
+					}
+	
+			5. Pipeline syntax : withdockerregistry
+				add docker credentials
+
+
+	Check Sonarqube and nexus servers for vulnerabilities, reports and artifcats
+	Deploy application to K8S Server:
+	Refer -> EKS-Complete repo
+		Create Service Account, Role & Assign that role, 
+		And create a secret for Service Account and geenrate a Token
+		vi svc.yml
+		kubectl get nods
+		kubectl create namespace webapps
+		kubectl apply -f svc.yml
+		vi role.yml
+		kubectl apply -f role.yml
+		vi rb.yml
+		kubectl apply -f rb.yml
+		create token->
+ 
+
+			vi svc_sec.yml
+			==Change service account name
+
+			apiVersion: v1
+			kind: Secret
+			type: kubernetes.io/service-account-token
+			metadata:
+			  name: mysecname
+			  annotations:
+				kubernetes.io/service-account.name: jenkins
+				
+			kubectl apply -f svc_sec.yml -n webapps
+
+			kubectl -n webapps describe secret mysecretname
+
+			copy token and go to jenkins->
+
+			pipeline syntax:
+			withcubeconfig:-
+			Add token -> kind: secret text
+			Id : k8s
+			token 
+			Server endpoint -> API server endpoint in EKS
+			Clustername :
+			namespace:
+
+
+----> Mobile configuration
+
+		Manage jenkins-> system->
+		Email notification
+		Extended Email notification]
+		Port: 465
+		Jenkins credentials : 
+		username : dbabupdtraws@gmail
+		password: generated one
+		id : email
+
+		Use SSL
+		Use SMTP Authentication
+
+		SMTP server : smtp.gmail.com
+
+		Username : dbabupdtraws@gmail.com
+		Password: generated one
+		Port: 465
+
+		Test e-mail : dbabupdtraws@gmail and test
+
+
+---->Check Nexus, sonarqube servers
+		>> Jenkins server ->
+			kubectl get all -n webapps
+			kubectl logs <podname> -n webapps
+	
+----------------------------Monitoring--------------
+
+Download Prometheus
+		wget https://github.com/prometheus/prometheus/releases/download/v2.52.0/prometheus-2.52.0.linux-amd64.tar.gz
+
+		Extract the Tarball: 
+		tar -xzvf prometheus-2.52.0.linux-amd64.tar.gz
+
+		Move to the Extracted Directory: 
+		cd prometheus-2.52.0.linux-amd64
+
+		Run Prometheus: 
+		./prometheus &
+
+		Verify Prometheus is Running:
+			Open a web browser and navigate to http://localhost:9090
+					Staus->Targets (Check)
+
+Install Node Exporter
+		1. Download Node Exporter: 
+			wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+		2. Extract the Tarball: 
+			tar -xzvf node_exporter-1.8.1.linux-amd64.tar.gz
+		3. Move to the Extracted Directory: 
+			cd node_exporter-1.8.1.linux-amd64
+		4. Run Node Exporter: 
+			./node_exporter &
+		5. Verify Node Exporter is Running:
+			Open a web browser and navigate to http://localhost:9100/metrics. 3. Install Blackbox Exporter
+
+Install Blackbox 
+
+		1. Download Blackbox Exporter: 
+			wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+		2. Extract the Tarball: \
+			tar -xzvf blackbox_exporter-0.25.0.linux-amd64.tar.gz
+		3. Move to the Extracted Directory: 
+			cd blackbox_exporter-0.25.0.linux-amd64
+		4. Run Blackbox Exporter: 
+			./blackbox_exporter &
+		5. Verify Blackbox Exporter is Running:
