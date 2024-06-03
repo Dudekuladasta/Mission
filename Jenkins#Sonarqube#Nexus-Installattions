@@ -300,7 +300,35 @@ Pipleine Creation--> New item--> Pipeline Name:
 			Server endpoint -> API server endpoint in EKS
 			Clustername :
 			namespace:
+			
+	**************************************Deploy To Kubernetes (K8s) - Configuration**************************************
+	
+    Refer EKS-Complete Repo to run the script Create Service Account, Role & Assign that role, 
+	And create a secret for Service Account and genarate a Token
 
+		apiVersion: v1
+		kind: Secret
+		type: kubernetes.io/service-account-token
+		metadata:
+		  name: mysecretname
+		  annotations:
+			kubernetes.io/service-account.name: myserviceaccount
+		
+		
+		
+		kubectl -n webapps describe secret jenkins
+		
+		Copy token and add in jenkins credentials
+			Select withKubeConfig from pipeline syntax and select secret text and paste the token.
+		
+		stage('Deploy To K8s') {
+		steps {
+        withKubeConfig(caCertificate: '', clusterName: 'DS-EKS', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://EA12CBD2F14726DD103E88821D89490F.gr7.ap-south-1.eks.amazonaws.com') {
+          sh "kubectl apply -f ds.yml -n webapps"
+          sleep 60
+				}
+			}
+		}
 
 ----> Mobile configuration
 
