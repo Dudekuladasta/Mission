@@ -1,0 +1,73 @@
+This Dockerfile is designed to create a Docker image for a Java application using OpenJDK 11. 
+Here’s a breakdown of what each line does:
+
+FROM adoptopenjdk/openjdk11: 
+	Specifies the base image to use, which is adoptopenjdk/openjdk11. This image includes OpenJDK 11, 
+	which is necessary for running Java applications.
+
+EXPOSE 8080: 
+	Informs Docker that the container listens on port 8080 at runtime. This is the port that your 
+	application will use to accept incoming requests.
+
+ENV APP_HOME /usr/src/app: 
+	Sets an environment variable APP_HOME with the value /usr/src/app. 
+	This is used to define the application's home directory within the container.
+
+COPY target/*.jar $APP_HOME/app.jar: 
+	Copies the JAR file from the target directory on the host machine to the APP_HOME directory inside the container, 
+	renaming it to app.jar. The target directory is typically where the JAR file is placed 
+	after building the Java application (e.g., using Maven or Gradle).
+
+WORKDIR $APP_HOME: 
+	Sets the working directory inside the container to APP_HOME. 
+	Any subsequent commands will be run from this directory.
+
+CMD ["java", "-jar", "app.jar"]: 
+	Defines the command to run when the container starts. 
+	This command will execute java -jar app.jar, starting the Java application.
+
+*********Full Dockerfile Explained************
+
+dockerfile
+	Copy code
+		# Use the OpenJDK 11 base image from AdoptOpenJDK
+			FROM adoptopenjdk/openjdk11
+
+		# Expose port 8080 to the host
+			EXPOSE 8080
+
+		# Set the environment variable for the application home directory
+			ENV APP_HOME /usr/src/app
+
+		# Copy the JAR file from the host machine to the app directory in the container
+			COPY target/*.jar $APP_HOME/app.jar
+
+		# Set the working directory
+			WORKDIR $APP_HOME
+
+		# Command to run the application
+			CMD ["java", "-jar", "app.jar"]
+	
+		Additional Considerations
+		
+		Building the Docker Image: To build the Docker image using this Dockerfile, 
+		navigate to the directory containing the Dockerfile and run:
+
+		sh
+		Copy code
+		docker build -t my-java-app .
+		Replace my-java-app with the desired name for your Docker image.
+
+		Running the Docker Container: To run a container from the image, use:
+
+		sh
+		Copy code
+		docker run -p 8080:8080 my-java-app
+		This will map port 8080 on your host to port 8080 in the container, 
+		allowing you to access your application via http://localhost:8080.
+
+		Dependency Management: Ensure that all dependencies are included in the JAR file during the build process, 
+		usually through a build tool like Maven or Gradle.
+
+		Environment Variables: If your application requires additional environment variables, 
+		you can add them using the ENV instruction
