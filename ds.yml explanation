@@ -1,7 +1,9 @@
-This Kubernetes manifest defines a Deployment and a Service for running a Java application in a Kubernetes cluster. Let's break down each part of the manifest and explain its components.
+This Kubernetes manifest defines a Deployment and a Service for running a Java application in a Kubernetes cluster. 
+Let's break down each part of the manifest and explain its components.
 
 Deployment
-A Deployment ensures that a specified number of pod replicas are running at any one time. If a pod fails, the Deployment controller will replace it. This provides self-healing and scalability features.
+A Deployment ensures that a specified number of pod replicas are running at any one time. If a pod fails,
+the Deployment controller will replace it. This provides self-healing and scalability features.
 
 yaml
 Copy code
@@ -26,7 +28,8 @@ spec:
           ports:
             - containerPort: 8080 # Port the container listens on
 Service
-A Service provides a stable endpoint (IP address and port) for accessing a set of pods. This enables load balancing and service discovery.
+A Service provides a stable endpoint (IP address and port) for accessing a set of pods. 
+This enables load balancing and service discovery.
 
 yaml
 Copy code
@@ -102,6 +105,8 @@ kubectl get deployments
 kubectl get services
 Accessing the Application:
 
-If you're using a cloud provider (like AWS, GCP, or Azure), the LoadBalancer service type will provision an external IP that you can use to access your application.
+If you're using a cloud provider (like AWS, GCP, or Azure), the LoadBalancer service type will provision 
+an external IP that you can use to access your application.
 Run kubectl get services to find the external IP assigned to your service. Access your application at http://<external-ip>:8080.
+
 This setup ensures that your application runs with high availability and can be accessed via a load-balanced endpoint.
