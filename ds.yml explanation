@@ -1,0 +1,107 @@
+This Kubernetes manifest defines a Deployment and a Service for running a Java application in a Kubernetes cluster. Let's break down each part of the manifest and explain its components.
+
+Deployment
+A Deployment ensures that a specified number of pod replicas are running at any one time. If a pod fails, the Deployment controller will replace it. This provides self-healing and scalability features.
+
+yaml
+Copy code
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mission-deployment # Name of the deployment
+spec:
+  selector:
+    matchLabels:
+      app: mission # Selector to match pods with the label app: mission
+  replicas: 2 # Number of pod replicas to maintain
+  template:
+    metadata:
+      labels:
+        app: mission # Label applied to pods created by this deployment
+    spec:
+      containers:
+        - name: mission # Name of the container
+          image: dastaaws/mission:latest # Docker image to use for the container
+          imagePullPolicy: Always # Always pull the latest image
+          ports:
+            - containerPort: 8080 # Port the container listens on
+Service
+A Service provides a stable endpoint (IP address and port) for accessing a set of pods. This enables load balancing and service discovery.
+
+yaml
+Copy code
+apiVersion: v1
+kind: Service
+metadata:
+  name: mission-ssvc # Name of the service
+spec:
+  selector:
+    app: mission # Selector to match pods with the label app: mission
+  ports:
+    - protocol: "TCP"
+      port: 8080 # Port on which the service is exposed
+      targetPort: 8080 # Port on which the container is listening
+  type: LoadBalancer # Type of service (LoadBalancer, ClusterIP, NodePort)
+Explanation and Comments
+Here is the manifest with comments explaining each section:
+
+yaml
+Copy code
+# Deployment configuration for the mission application
+apiVersion: apps/v1
+kind: Deployment # Specifies that this is a Deployment resource
+metadata:
+  name: mission-deployment # Name of the deployment
+spec:
+  selector:
+    matchLabels:
+      app: mission # Pods with this label will be managed by this deployment
+  replicas: 2 # Number of replicas to create
+  template:
+    metadata:
+      labels:
+        app: mission # Label applied to pods created by this deployment
+    spec:
+      containers:
+        - name: mission # Name of the container
+          image: dastaaws/mission:latest # Docker image for the container
+          imagePullPolicy: Always # Always pull the latest image
+          ports:
+            - containerPort: 8080 # Port the container listens on
+
+---
+
+# Service configuration for the mission application
+apiVersion: v1 # Kubernetes API version
+kind: Service # Specifies that this is a Service resource
+metadata:
+  name: mission-ssvc # Name of the service
+spec:
+  selector:
+    app: mission # Pods with this label will be selected by this service
+  ports:
+    - protocol: "TCP" # Protocol used by the service
+      port: 8080 # Port on which the service is exposed
+      targetPort: 8080 # Port on which the container listens
+  type: LoadBalancer # Service type that creates an external load balancer
+Usage
+To deploy this configuration to your Kubernetes cluster:
+
+Apply the Deployment and Service:
+
+sh
+Copy code
+kubectl apply -f <filename>.yaml
+Replace <filename>.yaml with the name of your YAML file.
+
+Check the status of the Deployment and Service:
+
+sh
+Copy code
+kubectl get deployments
+kubectl get services
+Accessing the Application:
+
+If you're using a cloud provider (like AWS, GCP, or Azure), the LoadBalancer service type will provision an external IP that you can use to access your application.
+Run kubectl get services to find the external IP assigned to your service. Access your application at http://<external-ip>:8080.
+This setup ensures that your application runs with high availability and can be accessed via a load-balanced endpoint.
